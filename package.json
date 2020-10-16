@@ -1,0 +1,17 @@
+{
+  "name": "com.outsystems.geolocationplugin",
+  "version": "0.0.1",
+  "description": "Geolocation plugin",
+  "cordova": {
+    "id": "com.outsystems.geolocationplugin",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Bruno Martins",
+  "license": "ISC"
+}
