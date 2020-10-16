@@ -10,8 +10,8 @@ cordova.define("com.outsystems.geolocationplugin.GeolocationPlugin", function(re
         exec(success, error, 'GeolocationPlugin', 'Get', [""]);
     };
     
-    exports.startCapture = function (time, success, error) {
-        exec(success, error, 'GeolocationPlugin', 'Start', ["wait_between", time]);
+    exports.startCapture = function (time, minDistance, success, error) {
+        exec(success, error, 'GeolocationPlugin', 'Start', ["wait_between", time, "min_distance", minDistance]);
     };
     
     exports.stopCapture = function (success, error) {
@@ -19,4 +19,3 @@ cordova.define("com.outsystems.geolocationplugin.GeolocationPlugin", function(re
     };
     
     });
-    

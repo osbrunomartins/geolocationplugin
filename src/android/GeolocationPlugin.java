@@ -34,6 +34,7 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     private static final String ACTION_STOP_CAPTURE = "Stop";
     private static final String ARGS_WAIT_BETWEEN = "wait_between";
     private static final int ARGS_WAIT_BETWEEN_VALUE = 1;
+    private static final int ARGS_MIN_DISTANCE_VALUE = 3;
 
     private static final String JSON_LATITUDE = "latitude";
     private static final String JSON_LONGITUDE = "longitude";
@@ -42,9 +43,11 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     private static final String JSON_STATUS_REQUEST = "request";
     private static final String JSON_STATUS_CAPTURING = "capturing";
     private static final String JSON_STATUS_STOPED_CAPTURING = "stoped";
+    private static final String JSON_STATUS_WAITING = "waiting";
 
     private PluginMode mode = new NotCapturing();
     private int waitBetween = 1000;
+    private int minDistance = 100;
 
     private static final String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
 
@@ -64,8 +67,17 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
             this.getLocation();
             return true;
         } else if (action.equals(ACTION_START_CAPTURE)) {
-            waitBetween = Integer.parseInt(args.getString(ARGS_WAIT_BETWEEN_VALUE));
-            this.startCapture(waitBetween);
+            if(isCapturing){
+                Toast.makeText(cordovaActivity, "Capture already in progress...", Toast.LENGTH_LONG).show();
+            }else {
+                try {
+                    waitBetween = Integer.parseInt(args.getString(ARGS_WAIT_BETWEEN_VALUE));
+                    minDistance = Integer.parseInt(args.getString(ARGS_MIN_DISTANCE_VALUE));
+                } catch (NumberFormatException e) {
+                    callbackContext.error("Invalid arguments. Please use integers for the arguments 'wait_between' and 'min_distance'.");
+                }
+                this.startCapture(waitBetween, minDistance);
+            }
             return true;
         } else if (action.equals(ACTION_STOP_CAPTURE)) {
             String message = args.getString(0);
@@ -86,15 +98,18 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
         }
     }
 
-    private void startCapture(int waitBetween) {
-        if(isCapturing){
-            return;
-        }
-        isCapturing = true;
+    private void startCapture(int waitBetween, int minDistance) {
         int permission = ActivityCompat.checkSelfPermission(cordovaActivity, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permission == PackageManager.PERMISSION_GRANTED){
             mode = new Capturing();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, waitBetween, 0, this);
+            isCapturing = true;
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, waitBetween, minDistance, this);
+
+            JSONObject json = getJsonObject(JSON_STATUS_WAITING);
+            PluginResult result =  new PluginResult(PluginResult.Status.OK, json.toString());
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
         }else{
             //ActivityCompat.requestPermissions(cordovaActivity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 0);
             cordova.requestPermission(this, 0, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -102,9 +117,12 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     }
 
     private void stopCapture(String message, CallbackContext callbackContext) {
-        if(isCapturing)
-            locationManager.removeUpdates(this);
-
+        if(!isCapturing){
+            Toast.makeText(cordovaActivity, "Capture is already stoped.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        locationManager.removeUpdates(this);
+        isCapturing = false;
         JSONObject json = getJsonObject(JSON_STATUS_STOPED_CAPTURING);
         PluginResult result =  new PluginResult(PluginResult.Status.OK, json.toString());
         result.setKeepCallback(false);
@@ -144,7 +162,6 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
             }
         });
         builder.show();
-
     }
 
     @Override
@@ -181,16 +198,6 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
         }
         return null;
     }
-
-    /*
-    private void coolMethod(String message, CallbackContext callbackContext) {
-        if (message != null && message.length() > 0) {
-            callbackContext.success(message);
-        } else {
-            callbackContext.error("Expected one non-empty string argument.");
-        }
-    }
-    */
 
     private abstract class PluginMode{
          void processLocationUpdate(Location location){
@@ -230,7 +237,7 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     private class Capturing extends PluginMode{
         @Override
         void processPermissionResult() {
-            startCapture(waitBetween);
+            startCapture(waitBetween, minDistance);
         }
 
         @Override
