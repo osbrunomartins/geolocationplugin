@@ -4,18 +4,36 @@
     <js-module name="GeolocationPlugin" src="www/GeolocationPlugin.js">
         <clobbers target="cordova.plugins.GeolocationPlugin" />
     </js-module>
+    
     <platform name="android">
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="GeolocationPlugin">
                 <param name="android-package" value="com.outsystems.geolocationplugin.GeolocationPlugin" />
             </feature>
         </config-file>
+        
         <config-file parent="/*" target="AndroidManifest.xml">
             <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
             <uses-permission android:name="android.permission. ACCESS_COARSE_LOCATION" />
             <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
         </config-file>
+        
         <source-file src="src/android/GeolocationPlugin.java" target-dir="src/com/outsystems/geolocationplugin" />
+    </platform>
+    
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="GeolocationPlugin">
+                <param name="ios-package" value="GeolocationPlugin" />
+            </feature>
+        </config-file>
+        <dependency url="https://github.com/osbrunomartins/cordova-plugin-add-swift-support" id="cordova-plugin-add-swift-support"/>
+
+        <source-file src="src/ios/GeolocationPlugin.swift" />
+
+        <edit-config target="NSLocationAlwaysAndWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+            <string>Our app needs permissions to access your location.</string>
+        </edit-config>
     </platform>
 </plugin>
