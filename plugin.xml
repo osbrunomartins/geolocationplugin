@@ -32,8 +32,12 @@
 
         <source-file src="src/ios/GeolocationPlugin.swift" />
 
-        <edit-config target="NSLocationAlwaysAndWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
-            <string>Our app needs permissions to access your location.</string>
-        </edit-config>
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
+            <string>"Our app needs permissions to access your location."</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>"Our app needs permissions to access your location."</string>
+        </config-file>
+        
     </platform>
 </plugin>
