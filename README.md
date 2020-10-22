@@ -32,6 +32,21 @@ Stops the recording of location.
 cordova.plugins.GeolocationPlugin.stopCapture(success, fail);
 ```
 
+### JSON Format
+The plugin returns the location in the given format:
+
+```json
+{
+  "status": "theStatus",
+  "latitude": "latitudeValue",
+  "longitude": "longitudeValue",
+  "altitude": "altitudeValue"
+}
+```
+
+Possible statuses:
+- status: waiting, request, capturing, stopped
+
 ## Supported Platforms
 - Android 8.0+
 - iOS 9.0 +
