@@ -11,7 +11,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -88,7 +87,7 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     }
 
     private void getLocation() {
-        int permission = ActivityCompat.checkSelfPermission(cordovaActivity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission = ContextCompat.checkSelfPermission(cordovaActivity, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permission == PackageManager.PERMISSION_GRANTED){
             //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
             locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,this, null);
@@ -99,7 +98,7 @@ public class GeolocationPlugin extends CordovaPlugin implements LocationListener
     }
 
     private void startCapture(int waitBetween, int minDistance) {
-        int permission = ActivityCompat.checkSelfPermission(cordovaActivity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission = ContextCompat.checkSelfPermission(cordovaActivity, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permission == PackageManager.PERMISSION_GRANTED){
             mode = new Capturing();
             isCapturing = true;
